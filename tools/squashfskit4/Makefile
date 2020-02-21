@@ -17,6 +17,10 @@ HOST_BUILD_DIR:=$(BUILD_DIR_HOST)/squashfskit-v$(PKG_VERSION)
 
 include $(INCLUDE_DIR)/host-build.mk
 
+ifneq ($(CONFIG_LINUX_4_4),)
+OLD_SQUASHFS_VERSION=-DOLD_SQUASHFS_VERSION=1
+endif
+
 define Host/Compile
 	+$(HOST_MAKE_VARS) \
 	$(MAKE) -C $(HOST_BUILD_DIR)/squashfs-tools \
@@ -24,7 +28,8 @@ define Host/Compile
 		LZMA_XZ_SUPPORT=1 \
 		XATTR_SUPPORT= \
 		LZMA_LIB="$(STAGING_DIR_HOST)/lib/liblzma.a" \
-		EXTRA_CFLAGS="-I$(STAGING_DIR_HOST)/include" \
+		EXTRA_CFLAGS="-I$(STAGING_DIR_HOST)/include \
+				$(OLD_SQUASHFS_VERSION)" \
 		mksquashfs unsquashfs
 endef
 
