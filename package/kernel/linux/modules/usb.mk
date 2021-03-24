@@ -480,9 +480,11 @@ $(eval $(call KernelPackage,usb-dwc3))
 
 define KernelPackage/usb-dwc3-of-simple
   TITLE:=DWC3 USB simple OF driver
-  DEPENDS:=@!LINUX_4_19 @(TARGET_ipq40xx||TARGET_ipq806x) +kmod-usb-dwc3
+  DEPENDS:=@!LINUX_4_19 @(TARGET_ipq40xx||TARGET_ipq60xx) +kmod-usb-dwc3
   KCONFIG:= CONFIG_USB_DWC3_OF_SIMPLE
-  FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-of-simple.ko
+  FILES:= \
+	$(LINUX_DIR)/drivers/usb/dwc3/dwc3-of-simple.ko \
+	$(LINUX_DIR)/drivers/usb/dwc3/dbm.ko
   AUTOLOAD:=$(call AutoLoad,53,dwc3-of-simple,1)
   $(call AddDepends/usb)
 endef
@@ -498,7 +500,7 @@ $(eval $(call KernelPackage,usb-dwc3-of-simple))
 
 define KernelPackage/usb-dwc3-qcom
   TITLE:=DWC3 Qualcomm USB driver
-  DEPENDS:=@LINUX_4_19 @(TARGET_ipq40xx||TARGET_ipq806x) +kmod-usb-dwc3
+  DEPENDS:=@LINUX_4_19 @(TARGET_ipq40xx||TARGET_ipq60xx) +kmod-usb-dwc3
   KCONFIG:= CONFIG_USB_DWC3_QCOM
   FILES:= $(LINUX_DIR)/drivers/usb/dwc3/dwc3-qcom.ko
   AUTOLOAD:=$(call AutoLoad,53,dwc3-qcom,1)

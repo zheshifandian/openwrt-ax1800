@@ -30,10 +30,10 @@ ifdef CONFIG_USE_MIPS16
     TARGET_CFLAGS += -mips16 -minterlink-mips16
   endif
 endif
-ifeq ($(strip $(PKG_IREMAP)),1)
-  IREMAP_CFLAGS = $(call iremap,$(PKG_BUILD_DIR),$(notdir $(PKG_BUILD_DIR)))
-  TARGET_CFLAGS += $(IREMAP_CFLAGS)
-endif
+#ifeq ($(strip $(PKG_IREMAP)),1)
+#  IREMAP_CFLAGS = $(call iremap,$(PKG_BUILD_DIR),$(notdir $(PKG_BUILD_DIR)))
+#  TARGET_CFLAGS += $(IREMAP_CFLAGS)
+#endif
 
 include $(INCLUDE_DIR)/hardening.mk
 include $(INCLUDE_DIR)/prereq.mk
