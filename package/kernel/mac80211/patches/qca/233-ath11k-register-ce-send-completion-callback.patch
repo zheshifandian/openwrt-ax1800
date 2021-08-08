@@ -1,0 +1,26 @@
+From 7c626240e9d99a7e9c0d6284a6697dc336da44c1 Mon Sep 17 00:00:00 2001
+From: Maharaja Kennadyrajan <mkenna@codeaurora.org>
+Date: Mon, 4 Jan 2021 23:29:38 +0530
+Subject: [PATCH] ath11k: register copy engine send completion callback
+
+Register send completion callback for copy engine-0 (CE0)
+for the function ath11k_htc_tx_completion_handler().
+This callback will be used for freeing the skbs allocated
+by the ath11k_htc_send() from the below functions:
+ath11k_htc_connect_service() & ath11k_htc_start().
+
+Signed-off-by: Maharaja Kennadyrajan <mkenna@codeaurora.org>
+---
+ drivers/net/wireless/ath/ath11k/ce.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/drivers/net/wireless/ath/ath11k/ce.c
++++ b/drivers/net/wireless/ath/ath11k/ce.c
+@@ -14,6 +14,7 @@ const struct ce_attr ath11k_host_ce_conf
+ 		.src_nentries = 16,
+ 		.src_sz_max = 2048,
+ 		.dest_nentries = 0,
++		.send_cb = ath11k_htc_tx_completion_handler,
+ 	},
+ 
+ 	/* CE1: target->host HTT + HTC control */

@@ -8,12 +8,12 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=iw
-PKG_VERSION:=5.0.1
+PKG_VERSION:=5.9
 PKG_RELEASE:=1
 
 PKG_SOURCE:=$(PKG_NAME)-$(PKG_VERSION).tar.xz
-PKG_SOURCE_URL:=@KERNEL/software/network/iw
-PKG_HASH:=1e38ea794a223525b2ea7fe78fd14f2a56121e62e21ba5f9dbe8c494b35b5c0d
+PKG_SOURCE_URL:=https://www.kernel.org/pub/software/network/iw
+PKG_MD5SUM:=7a47d6f749ec69afcaf351166fd12f6f
 
 PKG_MAINTAINER:=Felix Fietkau <nbd@nbd.name>
 PKG_LICENSE:=GPL-2.0
@@ -26,7 +26,6 @@ define Package/iw
   TITLE:=cfg80211 interface configuration utility
   URL:=http://wireless.kernel.org/en/users/Documentation/iw
   DEPENDS:= +libnl-tiny
-  VARIANT:=tiny
 endef
 
 define Package/iw-full
@@ -38,9 +37,13 @@ endef
 
 define Build/Configure
 	echo "const char iw_version[] = \"$(PKG_VERSION)\";" > $(PKG_BUILD_DIR)/version.c
-	echo "#!/bin/sh" > $(PKG_BUILD_DIR)/version.sh
+	rm -f $(PKG_BUILD_DIR)/version.sh
+	touch $(PKG_BUILD_DIR)/version.sh
 	chmod +x $(PKG_BUILD_DIR)/version.sh
 endef
+
+TARGET_CFLAGS += -fpie -Wall -Werror
+TARGET_LDFLAGS += -pie
 
 TARGET_CPPFLAGS:= \
 	-I$(STAGING_DIR)/usr/include/libnl-tiny \
@@ -66,7 +69,4 @@ define Package/iw/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/iw $(1)/usr/sbin/
 endef
 
-Package/iw-full/install=$(Package/iw/install)
-
 $(eval $(call BuildPackage,iw))
-$(eval $(call BuildPackage,iw-full))

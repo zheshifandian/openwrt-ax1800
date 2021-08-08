@@ -1,0 +1,44 @@
+From 9e8a8f7960f3d61e3bb983db76016961080cf0bd Mon Sep 17 00:00:00 2001
+From: Thiraviyam Mariyappan <tmariyap@codeaurora.org>
+Date: Tue, 1 Dec 2020 20:15:43 +0530
+Subject: [PATCH] ath11k: remove coldboot module param check
+
+For maple, to enable NSS by default, ath11k modules will be removed and
+inserted via script. when script runs, it tries to find phy# for the radios
+before inserting the module. Since cold boot calibration takes approx 20s
+for pci to calibrate, disabling the coldboot calibration while module
+insertion happens and also providing time delay to allow pci to come up.
+
+Signed-off-by: Thiraviyam Mariyappan <tmariyap@codeaurora.org>
+---
+ drivers/net/wireless/ath/ath11k/qmi.c | 19 +++++--------------
+ 1 file changed, 5 insertions(+), 14 deletions(-)
+
+--- a/drivers/net/wireless/ath/ath11k/qmi.c
++++ b/drivers/net/wireless/ath/ath11k/qmi.c
+@@ -2736,20 +2736,11 @@ static int ath11k_qmi_assign_target_mem_
+ 				ath11k_warn(ab, "qmi fail to get caldb-addr in dt\n");
+ 			}
+ 
+-			if (ab->enable_cold_boot_cal && ab->hw_params.cold_boot_calib) {
+-				ab->qmi.target_mem[idx].paddr = (u32)addr;
+-				ab->qmi.target_mem[idx].vaddr =
+-						ioremap(ab->qmi.target_mem[idx].paddr,
+-								ab->qmi.target_mem[i].size);
+-			} else if (ab->bus_params.fixed_bdf_addr) {
+-				ab->qmi.target_mem[idx].paddr = 0UL;
+-				ab->qmi.target_mem[idx].vaddr = 0UL;
+-			} else {
+-				ab->qmi.target_mem[idx].paddr = (phys_addr_t)addr;
+-				ab->qmi.target_mem[idx].vaddr =
+-					ioremap(ab->qmi.target_mem[idx].paddr,
+-							ab->qmi.target_mem[i].size);
+-			}
++			ab->qmi.target_mem[idx].paddr = (u32)addr;
++			ab->qmi.target_mem[idx].vaddr =
++				ioremap(ab->qmi.target_mem[idx].paddr,
++						ab->qmi.target_mem[i].size);
++
+ 			ab->qmi.target_mem[idx].size = ab->qmi.target_mem[i].size;
+ 			ab->qmi.target_mem[idx].type = ab->qmi.target_mem[i].type;
+ 			idx++;

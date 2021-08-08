@@ -1,10 +1,9 @@
 --- a/phy.c
 +++ b/phy.c
-@@ -843,3 +843,30 @@ static int handle_get_txq(struct nl80211
- COMMAND(get, txq, "",
- 	NL80211_CMD_GET_WIPHY, 0, CIB_PHY, handle_get_txq,
- 	"Get TXQ parameters.");
-+
+@@ -740,6 +740,33 @@ COMMAND(set, antenna, "<bitmap> | all |
+ 	"Set a bitmap of allowed antennas to use for TX and RX.\n"
+ 	"The driver may reject antenna configurations it cannot support.");
+ 
 +static int handle_antenna_gain(struct nl80211_state *state,
 +			       struct nl_msg *msg,
 +			       int argc, char **argv,
@@ -31,3 +30,7 @@
 +COMMAND(set, antenna_gain, "<antenna gain in dBm>",
 +	NL80211_CMD_SET_WIPHY, 0, CIB_PHY, handle_antenna_gain,
 +	"Specify antenna gain.");
++
+ static int handle_set_txq(struct nl80211_state *state,
+ 			  struct nl_msg *msg,
+ 			  int argc, char **argv,

@@ -1,0 +1,42 @@
+From af75673fe969d61b6c5a4b8e5025b069e1c3088d Mon Sep 17 00:00:00 2001
+From: Hauke Mehrtens <hauke@hauke-m.de>
+Date: Sun, 2 May 2021 16:43:29 +0200
+Subject: [PATCH] headers: Add skb_queue_len_lockless()
+
+This function is copied from the mainline kernel. It was introduced in
+commit 86b18aaa2b5b ("skbuff: fix a data race in skb_queue_len()").
+
+This function is now used by ath10k.
+
+Signed-off-by: Hauke Mehrtens <hauke@hauke-m.de>
+---
+ backport-include/linux/skbuff.h | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
+--- a/backport-include/linux/skbuff.h
++++ b/backport-include/linux/skbuff.h
+@@ -423,4 +423,24 @@ static inline void nf_reset_ct(struct sk_buff *skb)
+ 	     (skb) = (next_skb), (next_skb) = (skb) ? (skb)->next : NULL)
+ #endif
+ 
++#if LINUX_VERSION_IS_LESS(5,6,0) &&			\
++	!LINUX_VERSION_IN_RANGE(5,4,69, 5,5,0) &&	\
++	!LINUX_VERSION_IN_RANGE(4,19,149, 4,20,0) &&	\
++	!LINUX_VERSION_IN_RANGE(4,14,200, 4,15,0) &&	\
++	!LINUX_VERSION_IN_RANGE(4,9,238, 4,10,0) &&	\
++	!LINUX_VERSION_IN_RANGE(4,4,238, 4,5,0)
++/**
++ *	skb_queue_len_lockless	- get queue length
++ *	@list_: list to measure
++ *
++ *	Return the length of an &sk_buff queue.
++ *	This variant can be used in lockless contexts.
++ */
++#define skb_queue_len_lockless LINUX_BACKPORT(skb_queue_len_lockless)
++static inline __u32 skb_queue_len_lockless(const struct sk_buff_head *list_)
++{
++	return READ_ONCE(list_->qlen);
++}
++#endif /* < 5.6.0 */
++
+ #endif /* __BACKPORT_SKBUFF_H */

@@ -25,6 +25,8 @@ struct hostapd_ubus_request {
 
 struct hostapd_iface;
 struct hostapd_data;
+struct hapd_interfaces;
+struct rrm_measurement_beacon_report;
 
 #ifdef UBUS_SUPPORT
 
@@ -41,9 +43,20 @@ void hostapd_ubus_add_iface(struct hostapd_iface *iface);
 void hostapd_ubus_free_iface(struct hostapd_iface *iface);
 void hostapd_ubus_add_bss(struct hostapd_data *hapd);
 void hostapd_ubus_free_bss(struct hostapd_data *hapd);
+void hostapd_ubus_add_vlan(struct hostapd_data *hapd, struct hostapd_vlan *vlan);
+void hostapd_ubus_remove_vlan(struct hostapd_data *hapd, struct hostapd_vlan *vlan);
 
 int hostapd_ubus_handle_event(struct hostapd_data *hapd, struct hostapd_ubus_request *req);
 void hostapd_ubus_notify(struct hostapd_data *hapd, const char *type, const u8 *mac);
+void hostapd_ubus_notify_beacon_report(struct hostapd_data *hapd,
+				       const u8 *addr, u8 token, u8 rep_mode,
+				       struct rrm_measurement_beacon_report *rep,
+				       size_t len);
+void hostapd_ubus_notify_radar_detected(struct hostapd_iface *iface, int frequency,
+					int chan_width, int cf1, int cf2);
+
+void hostapd_ubus_add(struct hapd_interfaces *interfaces);
+void hostapd_ubus_free(struct hapd_interfaces *interfaces);
 
 #else
 
@@ -65,12 +78,40 @@ static inline void hostapd_ubus_free_bss(struct hostapd_data *hapd)
 {
 }
 
+static inline void hostapd_ubus_add_vlan(struct hostapd_data *hapd, struct hostapd_vlan *vlan)
+{
+}
+
+static inline void hostapd_ubus_remove_vlan(struct hostapd_data *hapd, struct hostapd_vlan *vlan)
+{
+}
+
 static inline int hostapd_ubus_handle_event(struct hostapd_data *hapd, struct hostapd_ubus_request *req)
 {
 	return 0;
 }
 
 static inline void hostapd_ubus_notify(struct hostapd_data *hapd, const char *type, const u8 *mac)
+{
+}
+
+static inline void hostapd_ubus_notify_beacon_report(struct hostapd_data *hapd,
+						     const u8 *addr, u8 token,
+						     u8 rep_mode,
+						     struct rrm_measurement_beacon_report *rep,
+						     size_t len)
+{
+}
+static inline void hostapd_ubus_notify_radar_detected(struct hostapd_iface *iface, int frequency,
+						      int chan_width, int cf1, int cf2)
+{
+}
+
+static inline void hostapd_ubus_add(struct hapd_interfaces *interfaces)
+{
+}
+
+static inline void hostapd_ubus_free(struct hapd_interfaces *interfaces)
 {
 }
 #endif

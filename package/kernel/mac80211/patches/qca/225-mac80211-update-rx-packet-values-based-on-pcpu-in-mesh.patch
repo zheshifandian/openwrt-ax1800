@@ -1,0 +1,144 @@
+From 8213bf700dd2c4bcb0851dfdb9ae41112f45565f Mon Sep 17 00:00:00 2001
+From: Thiraviyam Mariyappan <tmariyap@codeaurora.org>
+Date: Tue, 10 Nov 2020 16:35:58 +0530
+Subject: [PATCH] mac80211: update rx packet values based on pcpu in mesh
+
+Previously, for mesh link the rx stats from pcpu is not
+updating. Due to this, rx packets were not updated properly.
+Fixing that by updating the rx stats from pcpu rx stats
+
+Signed-off-by: Thiraviyam Mariyappan <tmariyap@codeaurora.org>
+---
+ net/mac80211/rx.c | 44 ++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 34 insertions(+), 10 deletions(-)
+
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2209,6 +2209,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 	unsigned int frag, seq;
+ 	struct ieee80211_fragment_entry *entry;
+ 	struct sk_buff *skb;
++	struct ieee80211_sta_rx_stats *stats;
+ 
+ 	hdr = (struct ieee80211_hdr *)rx->skb->data;
+ 	fc = hdr->frame_control;
+@@ -2337,8 +2338,12 @@ ieee80211_rx_h_defragment(struct ieee802
+  out:
+ 	ieee80211_led_rx(rx->local);
+  out_no_led:
+-	if (rx->sta)
+-		rx->sta->rx_stats.packets++;
++	if (rx->sta) {
++		stats = &rx->sta->rx_stats;
++		if (ieee80211_hw_check(&rx->sdata->local->hw, USES_RSS))
++			stats = this_cpu_ptr(rx->sta->pcpu_rx_stats);
++		stats->packets++;
++	}
+ 	return RX_CONTINUE;
+ }
+ 
+@@ -3179,6 +3184,7 @@ ieee80211_rx_h_action(struct ieee80211_r
+ 	struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *) rx->skb->data;
+ 	struct ieee80211_rx_status *status = IEEE80211_SKB_RXCB(rx->skb);
+ 	int len = rx->skb->len;
++	struct ieee80211_sta_rx_stats *stats;
+ 
+ 	if (!ieee80211_is_action(mgmt->frame_control))
+ 		return RX_CONTINUE;
+@@ -3460,16 +3466,24 @@ ieee80211_rx_h_action(struct ieee80211_r
+ 	return RX_CONTINUE;
+ 
+  handled:
+-	if (rx->sta)
+-		rx->sta->rx_stats.packets++;
++	if (rx->sta) {
++		stats = &rx->sta->rx_stats;
++		if (ieee80211_hw_check(&local->hw, USES_RSS))
++			stats = this_cpu_ptr(rx->sta->pcpu_rx_stats);
++		stats->packets++;
++	}
+ 	dev_kfree_skb(rx->skb);
+ 	return RX_QUEUED;
+ 
+  queue:
+ 	skb_queue_tail(&sdata->skb_queue, rx->skb);
+ 	ieee80211_queue_work(&local->hw, &sdata->work);
+-	if (rx->sta)
+-		rx->sta->rx_stats.packets++;
++	if (rx->sta) {
++		stats = &rx->sta->rx_stats;
++		if (ieee80211_hw_check(&local->hw, USES_RSS))
++			stats = this_cpu_ptr(rx->sta->pcpu_rx_stats);
++		stats->packets++;
++	}
+ 	return RX_QUEUED;
+ }
+ 
+@@ -3512,6 +3526,7 @@ ieee80211_rx_h_action_post_userspace(str
+ 	struct ieee80211_sub_if_data *sdata = rx->sdata;
+ 	struct ieee80211_mgmt *mgmt = (struct ieee80211_mgmt *) rx->skb->data;
+ 	int len = rx->skb->len;
++	struct ieee80211_sta_rx_stats *stats;
+ 
+ 	if (!ieee80211_is_action(mgmt->frame_control))
+ 		return RX_CONTINUE;
+@@ -3535,8 +3550,12 @@ ieee80211_rx_h_action_post_userspace(str
+ 	return RX_CONTINUE;
+ 
+  handled:
+-	if (rx->sta)
+-		rx->sta->rx_stats.packets++;
++	if (rx->sta) {
++		stats = &rx->sta->rx_stats;
++		if (ieee80211_hw_check(&rx->sdata->local->hw, USES_RSS))
++			stats = this_cpu_ptr(rx->sta->pcpu_rx_stats);
++		stats->packets++;
++	}
+ 	dev_kfree_skb(rx->skb);
+ 	return RX_QUEUED;
+ }
+@@ -3630,6 +3649,7 @@ ieee80211_rx_h_mgmt(struct ieee80211_rx_
+ {
+ 	struct ieee80211_sub_if_data *sdata = rx->sdata;
+ 	struct ieee80211_mgmt *mgmt = (void *)rx->skb->data;
++	struct ieee80211_sta_rx_stats *stats;
+ 	__le16 stype;
+ 
+ 	stype = mgmt->frame_control & cpu_to_le16(IEEE80211_FCTL_STYPE);
+@@ -3680,8 +3700,12 @@ ieee80211_rx_h_mgmt(struct ieee80211_rx_
+ 	/* queue up frame and kick off work to process it */
+ 	skb_queue_tail(&sdata->skb_queue, rx->skb);
+ 	ieee80211_queue_work(&rx->local->hw, &sdata->work);
+-	if (rx->sta)
+-		rx->sta->rx_stats.packets++;
++	if (rx->sta) {
++		stats = &rx->sta->rx_stats;
++		if (ieee80211_hw_check(&rx->sdata->local->hw, USES_RSS))
++			stats = this_cpu_ptr(rx->sta->pcpu_rx_stats);
++		stats->packets++;
++	}
+ 
+ 	return RX_QUEUED;
+ }
+--- a/net/mac80211/mesh_plink.c
++++ b/net/mac80211/mesh_plink.c
+@@ -416,6 +416,7 @@ static void mesh_sta_info_init(struct ie
+ 	struct ieee80211_supported_band *sband;
+ 	u32 rates, basic_rates = 0, changed = 0;
+ 	enum ieee80211_sta_rx_bandwidth bw = sta->sta.bandwidth;
++	struct ieee80211_sta_rx_stats *stats;
+ 
+ 	sband = ieee80211_get_sband(sdata);
+ 	if (!sband)
+@@ -425,7 +426,10 @@ static void mesh_sta_info_init(struct ie
+ 					&basic_rates);
+ 
+ 	spin_lock_bh(&sta->mesh->plink_lock);
+-	sta->rx_stats.last_rx = jiffies;
++	stats = &sta->rx_stats;
++	if (ieee80211_hw_check(&local->hw, USES_RSS))
++		stats = this_cpu_ptr(sta->pcpu_rx_stats);
++	stats->last_rx = jiffies;
+ 
+ 	/* rates and capabilities don't change during peering */
+ 	if (sta->mesh->plink_state == NL80211_PLINK_ESTAB &&
