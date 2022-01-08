@@ -129,6 +129,39 @@ endef
 
 $(eval $(call KernelPackage,mdio-gpio))
 
+define KernelPackage/aq_phy
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Aquantia PHY Driver
+  DEPENDS:=@TARGET_ipq806x
+  KCONFIG:=CONFIG_AQ_PHY
+  FILES:= \
+	$(LINUX_DIR)/drivers/net/phy/aq_phy.ko@lt4.4 \
+	$(LINUX_DIR)/drivers/net/phy/qca_85xx/aq_phy.ko@ge4.4
+  AUTOLOAD:=$(call AutoLoad,10,aq_phy)
+endef
+
+define KernelPackage/aq_phy/description
+  Aquantia PHY Driver
+endef
+
+$(eval $(call KernelPackage,aq_phy))
+
+define KernelPackage/qca_85xx_sw
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=QCA 85xx Switch Driver
+  DEPENDS:=@TARGET_ipq806x
+  KCONFIG:=CONFIG_QCA_85XX_SWITCH
+  FILES:= \
+	$(LINUX_DIR)/drivers/net/phy/qca_85xx_sw.ko@lt4.4 \
+	$(LINUX_DIR)/drivers/net/phy/qca_85xx/qca_85xx_sw.ko@ge4.4
+  AUTOLOAD:=$(call AutoLoad,40,qca_85xx_sw)
+endef
+
+define KernelPackage/qca_85xx_sw/description
+  QCA 85xx Switch Driver
+endef
+
+$(eval $(call KernelPackage,qca_85xx_sw))
 
 define KernelPackage/et131x
   SUBMENU:=$(NETWORK_DEVICES_MENU)
@@ -202,7 +235,7 @@ define KernelPackage/swconfig
   DEPENDS:=+kmod-libphy
   KCONFIG:=CONFIG_SWCONFIG
   FILES:=$(LINUX_DIR)/drivers/net/phy/swconfig.ko
-  AUTOLOAD:=$(call AutoLoad,41,swconfig)
+  AUTOLOAD:=$(call AutoLoad,29,swconfig)
 endef
 
 define KernelPackage/swconfig/description
@@ -210,6 +243,21 @@ define KernelPackage/swconfig/description
 endef
 
 $(eval $(call KernelPackage,swconfig))
+
+define KernelPackage/switch-ar40xx
+  SUBMENU:=$(NETWORK_DEVICES_MENU)
+  TITLE:=Qualcomm Atheros AR40XX switch support
+  DEPENDS:=@TARGET_ipq40xx +kmod-swconfig
+  KCONFIG:=CONFIG_AR40XX_PHY
+  FILES:=$(LINUX_DIR)/drivers/net/phy/ar40xx.ko
+  AUTOLOAD:=$(call AutoLoad,30,ar40xx)
+endef
+
+define KernelPackage/switch-ar40xx/description
+ Qualcomm atheros AR40XX switch support
+endef
+
+$(eval $(call KernelPackage,switch-ar40xx))
 
 define KernelPackage/switch-mvsw61xx
   SUBMENU:=$(NETWORK_DEVICES_MENU)

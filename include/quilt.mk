@@ -105,8 +105,8 @@ ifneq ($(CONFIG_TARGET_ipq60xx),y)
 	$(call PatchDir,$(LINUX_DIR),$(GENERIC_BACKPORT_DIR),generic-backport/)
 	$(call PatchDir,$(LINUX_DIR),$(GENERIC_PATCH_DIR),generic/)
 	$(call PatchDir,$(LINUX_DIR),$(GENERIC_HACK_DIR),generic-hack/)
-	$(call PatchDir,$(LINUX_DIR),$(PATCH_DIR),platform/)
 endif
+	$(call PatchDir,$(LINUX_DIR),$(PATCH_DIR),platform/)
 endef
 
 define Quilt/RefreshDir
@@ -136,8 +136,8 @@ ifneq ($(CONFIG_TARGET_ipq60xx),y)
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(GENERIC_BACKPORT_DIR),generic-backport/)
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(GENERIC_PATCH_DIR),generic/)
 	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(GENERIC_HACK_DIR),generic-hack/)
-	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR),platform/)
 endif
+	$(call Quilt/RefreshDir,$(PKG_BUILD_DIR),$(PATCH_DIR),platform/)
 endef
 
 define Quilt/Template

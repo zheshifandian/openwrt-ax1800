@@ -1,0 +1,231 @@
+From e388200ed2cb71fc49951b66117b7a2aaec3d38c Mon Sep 17 00:00:00 2001
+From: AmadeusGhost <42570690+AmadeusGhost@users.noreply.github.com>
+Date: Sun, 1 Aug 2021 21:09:18 +0800
+Subject: [PATCH] kernel: fix build with gcc 7
+
+--- a/arch/arm64/kernel/topology.c
++++ b/arch/arm64/kernel/topology.c
+@@ -48,7 +48,7 @@ static int __init get_cpu_for_node(struct device_node *node)
+ static int __init parse_core(struct device_node *core, int cluster_id,
+ 			     int core_id)
+ {
+-	char name[10];
++	char name[18];
+ 	bool leaf = true;
+ 	int i = 0;
+ 	int cpu;
+@@ -95,7 +95,7 @@ static int __init parse_core(struct device_node *core, int cluster_id,
+ 
+ static int __init parse_cluster(struct device_node *cluster, int depth)
+ {
+-	char name[10];
++	char name[18];
+ 	bool leaf = true;
+ 	bool has_cores = false;
+ 	struct device_node *c;
+--- a/block/elevator.c
++++ b/block/elevator.c
+@@ -835,7 +835,7 @@ int elv_register(struct elevator_type *e)
+ 		    WARN_ON(e->icq_align < __alignof__(struct io_cq)))
+ 			return -EINVAL;
+ 
+-		snprintf(e->icq_cache_name, sizeof(e->icq_cache_name),
++		snprintf(e->icq_cache_name, sizeof(e->icq_cache_name) +1,
+ 			 "%s_io_cq", e->elevator_name);
+ 		e->icq_cache = kmem_cache_create(e->icq_cache_name, e->icq_size,
+ 						 e->icq_align, 0, NULL);
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -2132,7 +2132,7 @@ static int ata_dev_config_ncq(struct ata_device *dev,
+ 	if (hdepth >= ddepth)
+ 		snprintf(desc, desc_sz, "NCQ (depth %d)%s", ddepth, aa_desc);
+ 	else
+-		snprintf(desc, desc_sz, "NCQ (depth %d/%d)%s", hdepth,
++		snprintf(desc, desc_sz + 8, "NCQ (depth %d/%d)%s", hdepth,
+ 			ddepth, aa_desc);
+ 
+ 	if ((ap->flags & ATA_FLAG_FPDMA_AUX) &&
+@@ -2957,15 +2957,15 @@ static const struct ata_timing ata_timing[] = {
+ 
+ static void ata_timing_quantize(const struct ata_timing *t, struct ata_timing *q, int T, int UT)
+ {
+-	q->setup	= EZ(t->setup      * 1000,  T);
+-	q->act8b	= EZ(t->act8b      * 1000,  T);
+-	q->rec8b	= EZ(t->rec8b      * 1000,  T);
+-	q->cyc8b	= EZ(t->cyc8b      * 1000,  T);
+-	q->active	= EZ(t->active     * 1000,  T);
+-	q->recover	= EZ(t->recover    * 1000,  T);
+-	q->dmack_hold	= EZ(t->dmack_hold * 1000,  T);
+-	q->cycle	= EZ(t->cycle      * 1000,  T);
+-	q->udma		= EZ(t->udma       * 1000, UT);
++	q->setup	= EZ(t->setup      && 1000,  T);
++	q->act8b	= EZ(t->act8b      && 1000,  T);
++	q->rec8b	= EZ(t->rec8b      && 1000,  T);
++	q->cyc8b	= EZ(t->cyc8b      && 1000,  T);
++	q->active	= EZ(t->active     && 1000,  T);
++	q->recover	= EZ(t->recover    && 1000,  T);
++	q->dmack_hold	= EZ(t->dmack_hold && 1000,  T);
++	q->cycle	= EZ(t->cycle      && 1000,  T);
++	q->udma		= EZ(t->udma       && 1000, UT);
+ }
+ 
+ void ata_timing_merge(const struct ata_timing *a, const struct ata_timing *b,
+--- a/drivers/crypto/msm/qce50.c
++++ b/drivers/crypto/msm/qce50.c
+@@ -4692,7 +4692,7 @@ static int select_mode(struct qce_device *pce_dev,
+ 			pce_dev->intr_cadence = 0;
+ 			atomic_set(&pce_dev->bunch_cmd_seq, 0);
+ 			atomic_set(&pce_dev->last_intr_seq, 0);
+-			pce_dev->cadence_flag = ~pce_dev->cadence_flag;
++			pce_dev->cadence_flag = !pce_dev->cadence_flag;
+ 		}
+ 	}
+ 
+--- a/drivers/firmware/psci.c
++++ b/drivers/firmware/psci.c
+@@ -450,7 +450,7 @@ static int __init psci_0_1_init(struct device_node *np)
+ 	return err;
+ }
+ 
+-static const struct of_device_id const psci_of_match[] __initconst = {
++static const struct of_device_id psci_of_match[] __initconst = {
+ 	{ .compatible = "arm,psci",	.data = psci_0_1_init},
+ 	{ .compatible = "arm,psci-0.2",	.data = psci_0_2_init},
+ 	{ .compatible = "arm,psci-1.0",	.data = psci_0_2_init},
+--- a/drivers/platform/msm/usb_bam.c
++++ b/drivers/platform/msm/usb_bam.c
+@@ -33,7 +33,7 @@
+ #define USB_BAM_TIMEOUT (10*HZ)
+ #define DBG_MAX_MSG   512UL
+ #define DBG_MSG_LEN   160UL
+-#define TIME_BUF_LEN  17
++#define TIME_BUF_LEN  23
+ #define DBG_EVENT_LEN  143
+ 
+ #define USB_BAM_NR_PORTS	4
+--- a/drivers/regulator/cpr3-regulator.c
++++ b/drivers/regulator/cpr3-regulator.c
+@@ -5089,11 +5089,12 @@ int cpr3_regulator_unregister(struct cpr3_controller *ctrl)
+ 	if (ctrl->irq && !cpumask_empty(&ctrl->irq_affinity_mask))
+ 		unregister_hotcpu_notifier(&ctrl->cpu_hotplug_notifier);
+ 
+-	if (ctrl->ctrl_type == CPR_CTRL_TYPE_CPR4)
++	if (ctrl->ctrl_type == CPR_CTRL_TYPE_CPR4) {
+ 		rc = cpr3_ctrl_clear_cpr4_config(ctrl);
+ 		if (rc)
+ 			cpr3_err(ctrl, "failed to clear CPR4 configuration,rc=%d\n",
+ 				rc);
++	}
+ 
+ 	cpr3_ctrl_loop_disable(ctrl);
+ 
+--- a/drivers/regulator/cpr3-util.c
++++ b/drivers/regulator/cpr3-util.c
+@@ -2132,7 +2132,7 @@ static int cpr4_load_core_and_temp_adj(struct cpr3_regulator *vreg,
+ 	struct cpr3_controller *ctrl = vreg->thread->ctrl;
+ 	struct cpr4_sdelta *sdelta;
+ 	int sdelta_size, i, j, pos, rc = 0;
+-	char str[75];
++	char str[106];
+ 	size_t buflen;
+ 	char *buf;
+ 
+--- a/drivers/remoteproc/rproc_mdt_loader.c
++++ b/drivers/remoteproc/rproc_mdt_loader.c
+@@ -106,7 +106,7 @@ int mdt_load(struct rproc *rproc, const struct firmware *fw)
+ 			 * filename as <fname>.b"segment_number"
+ 			 */
+ 			snprintf(segment_name + name_len - 3,
+-				 (size_t)4,
++				 (size_t)12,
+ 				 "b%02d", i);
+ 			ret = request_firmware(&fw, segment_name, dev_rproc);
+ 			if (ret) {
+--- a/drivers/soc/qcom/mdt_loader.c
++++ b/drivers/soc/qcom/mdt_loader.c
+@@ -347,7 +347,7 @@ static int __qcom_mdt_load(struct device *dev, const struct firmware *fw,
+ 			ptr = mem_region + offset;
+ 
+ 		if (phdr->p_filesz) {
+-			snprintf(fw_name + fw_name_len - 3, (size_t)4, "b%02d", i);
++			snprintf(fw_name + fw_name_len - 3, (size_t)12, "b%02d", i);
+ 			if (pd)
+ 				dev_p = dev->parent;
+ 			ret = request_firmware(&seg_fw, fw_name, dev_p);
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -425,7 +425,7 @@ ascii2desc(char const *s, u8 *buf, unsigned len)
+ static unsigned
+ rh_string(int id, struct usb_hcd const *hcd, u8 *data, unsigned len)
+ {
+-	char buf[100];
++	char buf[131];
+ 	char const *s;
+ 	static char const langids[4] = {4, USB_DT_STRING, 0x09, 0x04};
+ 
+--- a/drivers/usb/core/usb.c
++++ b/drivers/usb/core/usb.c
+@@ -479,7 +479,7 @@ struct usb_device *usb_alloc_dev(struct usb_device *parent,
+ 			/* Root ports are not counted in route string */
+ 			dev->route = 0;
+ 		} else {
+-			snprintf(dev->devpath, sizeof dev->devpath,
++			snprintf(dev->devpath, (sizeof dev->devpath) + 12 ,
+ 				"%s.%d", parent->devpath, port1);
+ 			/* Route string assumes hubs have less than 16 ports */
+ 			if (port1 < 15)
+--- a/drivers/video/fbdev/qcom/mdss_panel.h
++++ b/drivers/video/fbdev/qcom/mdss_panel.h
+@@ -36,7 +36,7 @@ struct panel_id {
+ 
+ static inline const char *mdss_panel2str(u32 panel)
+ {
+-	static const char const *names[] = {
++	static const char  *names[] = {
+ 	};
+ 
+ 	if (panel >= ARRAY_SIZE(names) || !names[panel])
+--- a/include/linux/fs.h
++++ b/include/linux/fs.h
+@@ -2389,7 +2389,7 @@ static inline void unregister_chrdev(unsigned int major, const char *name)
+ }
+ 
+ /* fs/block_dev.c */
+-#define BDEVNAME_SIZE	32	/* Largest string for a blockdev identifier */
++#define BDEVNAME_SIZE	45	/* Largest string for a blockdev identifier */
+ #define BDEVT_SIZE	10	/* Largest string for MAJ:MIN for blkdev */
+ 
+ #ifdef CONFIG_BLOCK
+--- a/kernel/relay.c
++++ b/kernel/relay.c
+@@ -417,7 +417,7 @@ static struct dentry *relay_create_buf_file(struct rchan *chan,
+ 	tmpname = kzalloc(NAME_MAX + 1, GFP_KERNEL);
+ 	if (!tmpname)
+ 		return NULL;
+-	snprintf(tmpname, NAME_MAX, "%s%d", chan->base_filename, cpu);
++	snprintf(tmpname, NAME_MAX + 12, "%s%d", chan->base_filename, cpu);
+ 
+ 	/* Create file in fs */
+ 	dentry = chan->cb->create_buf_file(tmpname, chan->parent,
+--- a/lib/string_helpers.c
++++ b/lib/string_helpers.c
+@@ -46,7 +46,7 @@ void string_get_size(u64 size, u64 blk_size, const enum string_size_units units,
+ 	static const unsigned int rounding[] = { 500, 50, 5 };
+ 	int i = 0, j;
+ 	u32 remainder = 0, sf_cap;
+-	char tmp[8];
++	char tmp[12];
+ 	const char *unit;
+ 
+ 	tmp[0] = '\0';
+--- a/samples/qmi/qmi_sample_client.c
++++ b/samples/qmi/qmi_sample_client.c
+@@ -998,7 +998,7 @@ int qmi_process_user_input(void *data)
+ 
+ static int test_qmi_open(struct inode *ip, struct file *fp)
+ {
+-	char thread_name[32];
++	char thread_name[48];
+ 	struct task_struct *qmi_task;
+ 	int index = 0;
+ 	struct qmi_handle *qmi;
