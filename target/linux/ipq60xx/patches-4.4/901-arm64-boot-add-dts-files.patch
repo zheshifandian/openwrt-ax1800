@@ -1,0 +1,10 @@
+--- a/arch/arm64/boot/dts/qcom/Makefile
++++ b/arch/arm64/boot/dts/qcom/Makefile
+@@ -46,6 +46,7 @@ dtb-$(CONFIG_ARCH_QCOM) += \
+ 				qcom-ipq6018-cp01-c4.dtb \
+ 				qcom-ipq6018-cp02-c1.dtb \
+ 				qcom-ipq6018-cp03-c1.dtb \
++				qcom-ipq6018-gl-ax1800.dtb \
+ 				qcom-ipq807x-hk01.dtb \
+ 				qcom-ipq807x-hk01.c2.dtb \
+ 				qcom-ipq807x-hk01.c3.dtb \

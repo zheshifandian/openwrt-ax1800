@@ -32,4 +32,18 @@ define Device/UbiFit
 	IMAGE/nand-sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 
+define Device/glinet_gl-ax1800
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_DTS := qcom-ipq6018-gl-ax1800
+	DEVICE_DTS_CONFIG := config@cp03-c1
+	DEVICE_TITLE := GL.iNet GL-AX1800
+	DEVICE_PACKAGES := kmod-usb3 kmod-usb-phy-msm
+	IMAGES += nand-factory.bin
+	IMAGE/nand-factory.bin := append-ubi | qsdk-ipq-factory-nand
+endef
+TARGET_DEVICES += glinet_gl-ax1800
+
 $(eval $(call BuildImage))

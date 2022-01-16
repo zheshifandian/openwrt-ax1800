@@ -11,5 +11,8 @@ platform_check_image() {
 platform_do_upgrade() {
 	board=$(board_name)
 	case $board in
+	glinet,gl-ax1800)
+		nand_do_upgrade "$1"
+		;;
 	esac
 }

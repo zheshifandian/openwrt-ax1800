@@ -1,0 +1,20 @@
+--- a/drivers/mtd/nand/nand_ids.c
++++ b/drivers/mtd/nand/nand_ids.c
+@@ -193,6 +193,7 @@ struct nand_manufacturers nand_manuf_ids[] = {
+ 	{NAND_MFR_GIGA, "GigaDevice"},
+ 	{NAND_MFR_ATO, "ATO"},
+ 	{NAND_MFR_WINBOND, "Winbond"},
++	{NAND_MFR_DOSILICON, "Dosilicon"},
+ 	{NAND_MFR_FIDELIX, "Fidelix"},
+ 	{0x0, "Unknown"}
+ };
+--- a/include/linux/mtd/nand.h
++++ b/include/linux/mtd/nand.h
+@@ -778,6 +778,7 @@ static inline struct mtd_info *nand_to_mtd(struct nand_chip *chip)
+ #define NAND_MFR_ATO		0x9b
+ #define NAND_MFR_WINBOND	0xef
+ #define NAND_MFR_FIDELIX	0xe5
++#define NAND_MFR_DOSILICON	0xf8
+ 
+ /* The maximum expected count of bytes in the NAND ID sequence */
+ #define NAND_MAX_ID_LEN 8
