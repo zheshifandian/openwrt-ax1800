@@ -47,9 +47,10 @@ define Package/ath11k-firmware-ipq6018/install
 	$(INSTALL_DATA) \
 		$(PKG_BUILD_DIR)/IPQ6018/hw1.0/2.5.0.1/WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1/* \
 		$(1)/lib/firmware/IPQ6018/
-	$(INSTALL_DATA) \
-		$(PKG_BUILD_DIR)/IPQ6018/hw1.0/board-2.bin \
-		$(1)/lib/firmware/ath11k/IPQ6018/hw1.0/
+	$(INSTALL_DATA) ./files/board-2.bin.IPQ6018 \
+		$(1)/lib/firmware/ath11k/IPQ6018/hw1.0/board-2.bin
+	$(INSTALL_DATA) ./files/qdss_trace_config.bin \
+		$(1)/lib/firmware/ath11k/IPQ6018/hw1.0/qdss_trace_config.bin
 endef
 
 define Package/ath11k-firmware-ipq8074/install
