@@ -32,6 +32,17 @@ define Device/UbiFit
 	IMAGE/nand-sysupgrade.bin := sysupgrade-tar | append-metadata
 endef
 
+define Device/cmiot_ax18
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_DTS := qcom-ipq6018-ax18
+	DEVICE_DTS_CONFIG := config@cp03-c1
+	DEVICE_TITLE := CMIOT AX18
+endef
+TARGET_DEVICES += cmiot_ax18
+
 define Device/glinet_gl-ax1800
 	$(call Device/FitImage)
 	$(call Device/UbiFit)
@@ -45,5 +56,16 @@ define Device/glinet_gl-ax1800
 	IMAGE/nand-factory.bin := append-ubi | qsdk-ipq-factory-nand
 endef
 TARGET_DEVICES += glinet_gl-ax1800
+
+define Device/zn_m2
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_DTS := qcom-ipq6018-zn-m2
+	DEVICE_DTS_CONFIG := config@cp03-c1
+	DEVICE_TITLE := ZN M2
+endef
+TARGET_DEVICES += zn_m2
 
 $(eval $(call BuildImage))

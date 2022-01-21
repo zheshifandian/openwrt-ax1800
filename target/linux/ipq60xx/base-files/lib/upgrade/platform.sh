@@ -11,7 +11,9 @@ platform_check_image() {
 platform_do_upgrade() {
 	board=$(board_name)
 	case $board in
-	glinet,gl-ax1800)
+	cmiot,ax18|\
+	glinet,gl-ax1800|\
+	zn,m2)
 		nand_do_upgrade "$1"
 		;;
 	esac

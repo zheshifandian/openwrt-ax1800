@@ -41,14 +41,18 @@ board=$(board_name)
 case "$FIRMWARE" in
 "ath11k/IPQ6018/hw1.0/caldata.bin")
 	case "$board" in
-	glinet,gl-ax1800)
+	cmiot,ax18|\
+	glinet,gl-ax1800|\
+	zn,m2)
 		ath11kcal_extract "0:ART" 4096 65536
 		;;
 	esac
 	;;
 ath11k-macs)
 	case "$board" in
-	glinet,gl-ax1800)
+	cmiot,ax18|\
+	glinet,gl-ax1800|\
+	zn,m2)
 		ath11k_generate_macs
 		;;
 	esac

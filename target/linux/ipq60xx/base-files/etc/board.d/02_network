@@ -12,6 +12,10 @@ ipq60xx_setup_interfaces()
 	local board="$1"
 
 	case "$board" in
+	cmiot,ax18|\
+	zn,m2)
+		ucidef_set_interfaces_lan_wan "eth1 eth2 eth3" "eth0"
+		;;
 	glinet,gl-ax1800)
 		ucidef_set_interfaces_lan_wan "eth1 eth2 eth3 eth4" "eth0"
 		;;
