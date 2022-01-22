@@ -767,19 +767,19 @@ Index: linux-4.4.60/net/qrtr/qrtr.c
 ===================================================================
 --- linux-4.4.60.orig/net/qrtr/qrtr.c
 +++ linux-4.4.60/net/qrtr/qrtr.c
-@@ -135,6 +135,8 @@ static DEFINE_IDR(qrtr_ports);
+@@ -158,6 +158,8 @@ static DECLARE_RWSEM(qrtr_node_lock);
+ static DEFINE_IDR(qrtr_ports);
  static DEFINE_MUTEX(qrtr_port_lock);
- static DEFINE_MUTEX(qrtr_node_locking);
-
+ 
 +static struct delayed_work qrtr_ns_work;
 +
  /**
   * struct qrtr_node - endpoint node
   * @ep_lock: lock for endpoint management and callbacks
-@@ -1765,33 +1767,6 @@ static int qrtr_create(struct net *net,
-	return 0;
+@@ -1930,33 +1932,6 @@ static int qrtr_create(struct net *net, struct socket *sock,
+ 	return 0;
  }
-
+ 
 -static const struct nla_policy qrtr_policy[IFA_MAX + 1] = {
 -	[IFA_LOCAL] = { .type = NLA_U32 },
 -};
@@ -808,27 +808,27 @@ Index: linux-4.4.60/net/qrtr/qrtr.c
 -}
 -
  static const struct net_proto_family qrtr_family = {
-	.owner	= THIS_MODULE,
-	.family	= AF_QIPCRTR,
-@@ -1811,7 +1786,8 @@ static int __init qrtr_proto_init(void)
-		proto_unregister(&qrtr_proto);
-		return rc;
-	}
+ 	.owner	= THIS_MODULE,
+ 	.family	= AF_QIPCRTR,
+@@ -1976,7 +1951,8 @@ static int __init qrtr_proto_init(void)
+ 		proto_unregister(&qrtr_proto);
+ 		return rc;
+ 	}
 -	rtnl_register(PF_QIPCRTR, RTM_NEWADDR, qrtr_addr_doit, NULL, NULL);
 +
 +	qrtr_ns_init();
-
-	return 0;
+ 
+ 	return 0;
  }
-@@ -1819,7 +1795,8 @@ postcore_initcall(qrtr_proto_init);
-
+@@ -1984,7 +1960,8 @@ postcore_initcall(qrtr_proto_init);
+ 
  static void __exit qrtr_proto_fini(void)
  {
 -	rtnl_unregister(PF_QIPCRTR, RTM_NEWADDR);
 +	cancel_delayed_work_sync(&qrtr_ns_work);
 +	qrtr_ns_remove();
-	sock_unregister(qrtr_family.family);
-	proto_unregister(&qrtr_proto);
+ 	sock_unregister(qrtr_family.family);
+ 	proto_unregister(&qrtr_proto);
  }
 Index: linux-4.4.60/net/qrtr/qrtr.h
 ===================================================================
@@ -851,7 +851,7 @@ Index: linux-4.4.60/net/qrtr/Makefile
 @@ -1,4 +1,4 @@
 -obj-$(CONFIG_QRTR) := qrtr.o
 +obj-$(CONFIG_QRTR) := qrtr.o ns.o
-
+ 
  obj-$(CONFIG_QRTR_SMD) += qrtr-smd.o
  qrtr-smd-y	:= smd.o
 Index: linux-4.4.60/include/trace/events/qrtr.h

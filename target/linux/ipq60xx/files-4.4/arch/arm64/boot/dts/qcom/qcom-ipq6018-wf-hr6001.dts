@@ -21,47 +21,47 @@
 			pinctrl-0 = <&leds_pins>;
 			pinctrl-names = "default";
 
-			lan1 {
+			led@51 {
 				label = "wf-hr6001:blue:lan1";
 				gpio = <&tlmm 51 GPIO_ACTIVE_HIGH>;
 			};
 
-			lan2 {
+			led@24 {
 				label = "wf-hr6001:blue:lan2";
 				gpio = <&tlmm 24 GPIO_ACTIVE_HIGH>;
 			};
 
-			lan3 {
+			led@53 {
 				label = "wf-hr6001:blue:lan3";
 				gpio = <&tlmm 53 GPIO_ACTIVE_HIGH>;
 			};
 
-			lan4 {
+			led@25 {
 				label = "wf-hr6001:blue:lan4";
 				gpio = <&tlmm 25 GPIO_ACTIVE_HIGH>;
 			};
 
-			lte1 {
+			led@34 {
 				label = "wf-hr6001:blue:lte1";
 				gpio = <&tlmm 34 GPIO_ACTIVE_HIGH>;
 			};
 
-			lte2 {
+			led@33 {
 				label = "wf-hr6001:blue:lte2";
 				gpio = <&tlmm 33 GPIO_ACTIVE_HIGH>;
 			};
 
-			wan {
+			led@31 {
 				label = "wf-hr6001:blue:wan";
 				gpio = <&tlmm 31 GPIO_ACTIVE_HIGH>;
 			};
 
-			wlan2g {
+			led@37 {
 				label = "wf-hr6001:blue:wlan2g";
 				gpio = <&tlmm 37 GPIO_ACTIVE_HIGH>;
 			};
 
-			wlan5g {
+			led@35 {
 				label = "wf-hr6001:blue:wlan5g";
 				gpio = <&tlmm 35 GPIO_ACTIVE_HIGH>;
 			};
