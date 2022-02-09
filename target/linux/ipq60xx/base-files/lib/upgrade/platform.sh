@@ -18,5 +18,8 @@ platform_do_upgrade() {
 	zn,m2)
 		nand_do_upgrade "$1"
 		;;
+	linksys,mr7350)
+		platform_do_upgrade_linksys "$1"
+		;;
 	esac
 }

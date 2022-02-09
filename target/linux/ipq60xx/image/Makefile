@@ -82,6 +82,22 @@ define Device/huasifei_wf-hr6001
 endef
 TARGET_DEVICES += huasifei_wf-hr6001
 
+define Device/linksys_mr7350
+	$(call Device/FitImage)
+	KERNEL_SIZE := 8192k
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	UBINIZE_OPTS := -E 5
+	IMAGES := factory.bin sysupgrade.bin
+	IMAGE/factory.bin := append-kernel | pad-to $$$$(KERNEL_SIZE) | \
+		append-ubi | linksys-image type=MR7350
+	DEVICE_TITLE := Linksys MR7350
+	DEVICE_DTS := qcom-ipq6018-mr7350
+	DEVICE_PACKAGES := kmod-leds-pca963x kmod-usb3 \
+		kmod-usb-ledtrig-usbport kmod-usb-phy-msm
+endef
+TARGET_DEVICES += linksys_mr7350
+
 define Device/zn_m2
 	$(call Device/FitImage)
 	$(call Device/UbiFit)

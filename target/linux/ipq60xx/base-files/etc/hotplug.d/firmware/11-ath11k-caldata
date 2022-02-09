@@ -1,8 +1,23 @@
 #!/bin/sh
 
+[ -e /lib/firmware/$FIRMWARE ] && exit 0
+
+. /lib/functions.sh
+. /lib/functions/system.sh
+
+board=$(board_name)
+
 ath11k_generate_macs() {
+	case "$board" in
+	linksys,mr7350)
+		eth=$(mtd_get_mac_ascii devinfo hw_mac_addr)
+		;;
+	*)
+		eth=$(cat /sys/class/net/eth0/address)
+		;;
+	esac
+
 	touch /lib/firmware/ath11k-macs
-	eth=$(cat /sys/class/net/eth0/address)
 	mac1=$(macaddr_add $eth 2)
 	mac2=$(macaddr_add $eth 3)
 	mac3=$(macaddr_add $eth 4)
@@ -31,19 +46,13 @@ ath11kcal_extract() {
 }
 
 
-[ -e /lib/firmware/$FIRMWARE ] && exit 0
-
-. /lib/functions.sh
-. /lib/functions/system.sh
-
-board=$(board_name)
-
 case "$FIRMWARE" in
 "ath11k/IPQ6018/hw1.0/caldata.bin")
 	case "$board" in
 	cmiot,ax18|\
 	glinet,gl-ax1800|\
 	huasifei,wf-hr6001|\
+	linksys,mr7350|\
 	zn,m2)
 		ath11kcal_extract "0:ART" 4096 65536
 		;;
@@ -54,6 +63,7 @@ ath11k-macs)
 	cmiot,ax18|\
 	glinet,gl-ax1800|\
 	huasifei,wf-hr6001|\
+	linksys,mr7350|\
 	zn,m2)
 		ath11k_generate_macs
 		;;
