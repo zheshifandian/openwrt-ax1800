@@ -1,0 +1,110 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+/dts-v1/;
+
+#include "qcom-ipq6018-cp01.dtsi"
+#include "qcom-ipq6018-rpm-regulator.dtsi"
+#include "qcom-ipq6018-cpr-regulator.dtsi"
+#include "qcom-ipq6018-cp-cpu.dtsi"
+
+/ {
+	model = "HUASIFEI WF-HR6001";
+	compatible = "huasifei,wf-hr6001", "qcom,ipq6018";
+
+	chosen {
+		bootargs-append = " root=/dev/ubiblock0_1 swiotlb=1 coherent_pool=2M";
+	};
+
+	soc {
+		leds {
+			compatible = "gpio-leds";
+			pinctrl-0 = <&leds_pins>;
+			pinctrl-names = "default";
+
+			lan1 {
+				label = "wf-hr6001:blue:lan1";
+				gpio = <&tlmm 51 GPIO_ACTIVE_HIGH>;
+			};
+
+			lan2 {
+				label = "wf-hr6001:blue:lan2";
+				gpio = <&tlmm 24 GPIO_ACTIVE_HIGH>;
+			};
+
+			lan3 {
+				label = "wf-hr6001:blue:lan3";
+				gpio = <&tlmm 53 GPIO_ACTIVE_HIGH>;
+			};
+
+			lan4 {
+				label = "wf-hr6001:blue:lan4";
+				gpio = <&tlmm 25 GPIO_ACTIVE_HIGH>;
+			};
+
+			lte1 {
+				label = "wf-hr6001:blue:lte1";
+				gpio = <&tlmm 34 GPIO_ACTIVE_HIGH>;
+			};
+
+			lte2 {
+				label = "wf-hr6001:blue:lte2";
+				gpio = <&tlmm 33 GPIO_ACTIVE_HIGH>;
+			};
+
+			wan {
+				label = "wf-hr6001:blue:wan";
+				gpio = <&tlmm 31 GPIO_ACTIVE_HIGH>;
+			};
+
+			wlan2g {
+				label = "wf-hr6001:blue:wlan2g";
+				gpio = <&tlmm 37 GPIO_ACTIVE_HIGH>;
+			};
+
+			wlan5g {
+				label = "wf-hr6001:blue:wlan5g";
+				gpio = <&tlmm 35 GPIO_ACTIVE_HIGH>;
+			};
+		};
+	};
+};
+
+&tlmm {
+	leds_pins: leds_pins {
+		mux {
+			pins = "gpio24", "gpio25", "gpio31",
+				"gpio33", "gpio34", "gpio35",
+				"gpio37", "gpio51", "gpio53";
+			function = "gpio";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+	};
+
+	pcie0_pins: pcie_pins {
+		pcie0_rst {
+			pins = "gpio60";
+			function = "pcie0_rst";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+	};
+};
+
+&blsp1_uart2 {
+	pinctrl-0 = <&hsuart_pins>;
+};
+
+&pcie0 {
+	pinctrl-0 = <&pcie0_pins>;
+	pinctrl-names = "default";
+	status = "ok";
+};
+
+&qpic_lcd {
+	status = "disabled";
+};
+
+&qpic_lcd_panel {
+	status = "disabled";
+};

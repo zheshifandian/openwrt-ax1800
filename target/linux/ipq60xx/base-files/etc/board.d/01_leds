@@ -17,6 +17,15 @@ zn,m2)
 	ucidef_set_led_netdev "wlan2g" "WLAN2G" "${boardname}:blue:wlan2g" "wlan1"
 	ucidef_set_led_netdev "wlan5g" "WLAN5G" "${boardname}:blue:wlan5g" "wlan0"
 	;;
+huasifei,wf-hr6001)
+	ucidef_set_led_netdev "wan" "WAN" "${boardname}:blue:wan" "eth4"
+	ucidef_set_led_netdev "lan1" "LAN1" "${boardname}:blue:lan1" "eth3"
+	ucidef_set_led_netdev "lan2" "LAN2" "${boardname}:blue:lan2" "eth2"
+	ucidef_set_led_netdev "lan3" "LAN3" "${boardname}:blue:lan3" "eth1"
+	ucidef_set_led_netdev "lan4" "LAN4" "${boardname}:blue:lan4" "eth0"
+	ucidef_set_led_netdev "wlan2g" "WLAN2G" "${boardname}:blue:wlan2g" "wlan1"
+	ucidef_set_led_netdev "wlan5g" "WLAN5G" "${boardname}:blue:wlan5g" "wlan0"
+	;;
 *)
 	;;
 esac

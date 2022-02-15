@@ -19,6 +19,9 @@ ipq60xx_setup_interfaces()
 	glinet,gl-ax1800)
 		ucidef_set_interfaces_lan_wan "eth1 eth2 eth3 eth4" "eth0"
 		;;
+	huasifei,wf-hr6001)
+		ucidef_set_interfaces_lan_wan "eth0 eth1 eth2 eth3" "eth4"
+		;;
 	*)
 		echo "Unsupported hardware. Network interfaces not initialized"
 		;;

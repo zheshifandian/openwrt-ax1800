@@ -43,6 +43,7 @@ case "$FIRMWARE" in
 	case "$board" in
 	cmiot,ax18|\
 	glinet,gl-ax1800|\
+	huasifei,wf-hr6001|\
 	zn,m2)
 		ath11kcal_extract "0:ART" 4096 65536
 		;;
@@ -52,6 +53,7 @@ ath11k-macs)
 	case "$board" in
 	cmiot,ax18|\
 	glinet,gl-ax1800|\
+	huasifei,wf-hr6001|\
 	zn,m2)
 		ath11k_generate_macs
 		;;

@@ -57,6 +57,17 @@ define Device/glinet_gl-ax1800
 endef
 TARGET_DEVICES += glinet_gl-ax1800
 
+define Device/huasifei_wf-hr6001
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_DTS := qcom-ipq6018-wf-hr6001
+	DEVICE_DTS_CONFIG := config@cp01-c1
+	DEVICE_TITLE := HUASIFEI WF-HR6001
+endef
+TARGET_DEVICES += huasifei_wf-hr6001
+
 define Device/zn_m2
 	$(call Device/FitImage)
 	$(call Device/UbiFit)
