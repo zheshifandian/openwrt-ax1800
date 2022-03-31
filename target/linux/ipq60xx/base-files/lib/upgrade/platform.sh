@@ -13,6 +13,7 @@ platform_do_upgrade() {
 	case $board in
 	cmiot,ax18|\
 	glinet,gl-ax1800|\
+	glinet,gl-axt1800|\
 	huasifei,wf-hr6001|\
 	zn,m2)
 		nand_do_upgrade "$1"

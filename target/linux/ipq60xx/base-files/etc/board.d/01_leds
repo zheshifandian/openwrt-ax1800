@@ -26,6 +26,10 @@ huasifei,wf-hr6001)
 	ucidef_set_led_netdev "wlan2g" "WLAN2G" "${boardname}:blue:wlan2g" "wlan1"
 	ucidef_set_led_netdev "wlan5g" "WLAN5G" "${boardname}:blue:wlan5g" "wlan0"
 	;;
+glinet,ax1800|\
+glinet,axt1800)
+	ucidef_set_led_netdev "wan" "WAN" "blue:wan" "eth0" "tx rx link"
+	;;
 *)
 	;;
 esac
