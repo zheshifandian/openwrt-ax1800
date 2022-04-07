@@ -18,6 +18,7 @@ PKG_MIRROR_HASH:=e7bb77d9916d190b3c02975faf62d1794557d4a4a774cd0cf1f3a6ddb7403e3
 
 PKG_LICENSE:=GPL-2.0
 PKG_LICENSE_FILES:=LICENSE
+PKG_MAINTAINER:=Chion Tang <tech@chionlab.moe>
 
 include $(INCLUDE_DIR)/kernel.mk
 include $(INCLUDE_DIR)/package.mk
@@ -28,7 +29,6 @@ define Package/iptables-mod-fullconenat
   CATEGORY:=Network
   TITLE:=FULLCONENAT iptables extension
   DEPENDS:=+iptables +kmod-ipt-fullconenat
-  MAINTAINER:=Chion Tang <tech@chionlab.moe>
 endef
 
 define Package/iptables-mod-fullconenat/install
@@ -40,7 +40,6 @@ define KernelPackage/ipt-fullconenat
   SUBMENU:=Netfilter Extensions
   TITLE:=FULLCONENAT netfilter module
   DEPENDS:=+kmod-nf-ipt +kmod-nf-nat
-  MAINTAINER:=Chion Tang <tech@chionlab.moe>
   KCONFIG:= \
   	CONFIG_NF_CONNTRACK_EVENTS=y \
 	CONFIG_NF_CONNTRACK_CHAIN_EVENTS=y
@@ -49,11 +48,6 @@ define KernelPackage/ipt-fullconenat
 endef
 
 include $(INCLUDE_DIR)/kernel-defaults.mk
-
-define Build/Prepare
-	$(call Build/Prepare/Default)
-	$(CP) ./files/Makefile $(PKG_BUILD_DIR)/
-endef
 
 define Build/Compile
 	+$(MAKE) $(PKG_JOBS) -C "$(LINUX_DIR)" \
@@ -65,5 +59,5 @@ define Build/Compile
 	$(call Build/Compile/Default)
 endef
 
-$(eval $(call BuildPackage,iptables-mod-fullconenat))
 $(eval $(call KernelPackage,ipt-fullconenat))
+$(eval $(call BuildPackage,iptables-mod-fullconenat))
