@@ -54,6 +54,7 @@ case "$FIRMWARE" in
 	case "$board" in
 	cmiot,ax18|\
 	glinet,gl-ax1800|\
+	glinet,gl-axt1800|\
 	huasifei,wf-hr6001|\
 	linksys,mr7350|\
 	qihoo,v6|\
@@ -66,6 +67,7 @@ ath11k-macs)
 	case "$board" in
 	cmiot,ax18|\
 	glinet,gl-ax1800|\
+	glinet,gl-axt1800|\
 	huasifei,wf-hr6001|\
 	linksys,mr7350|\
 	qihoo,v6|\

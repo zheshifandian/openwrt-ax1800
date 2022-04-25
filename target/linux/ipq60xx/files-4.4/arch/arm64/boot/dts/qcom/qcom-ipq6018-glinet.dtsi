@@ -1,0 +1,378 @@
+/*
+ *  GL.iNet GL-AX1800 board support
+ *
+ *  Copyright (c) 2021 GL Technologies & Microuter Technologies
+ *  Copyright (c) 2021 AmadeusGhost <amadeus@jmu.edu.cn>
+ *
+ *  This program is free software; you can redistribute it and/or modify it
+ *  under the terms of the GNU General Public License version 2 as published
+ *  by the Free Software Foundation.
+ */
+
+/dts-v1/;
+
+#include "qcom-ipq6018.dtsi"
+#include "qcom-ipq6000-cpu-opp.dtsi"
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	#address-cells = <0x2>;
+	#size-cells = <0x2>;
+	interrupt-parent = <&intc>;
+	qcom,msm-id = <0x192 0x0>;
+
+	aliases {
+		led-boot = &led_blue;
+		led-failsafe = &led_white;
+		led-running = &led_blue;
+		led-upgrade = &led_white;
+		serial0 = &blsp1_uart3;
+		serial1 = &blsp1_uart4;
+		serial2 = &blsp1_uart5;
+
+		ethernet0 = "/soc/dp1";
+		ethernet1 = "/soc/dp2";
+		ethernet2 = "/soc/dp3";
+	};
+
+	chosen {
+		bootargs-append = " root=/dev/ubiblock0_1 swiotlb=1 coherent_pool=2M";
+	};
+
+	soc {
+		mdio: mdio@90000 {
+			pinctrl-0 = <&mdio_pins>;
+			pinctrl-names = "default";
+			phy-reset-gpio = <&tlmm 74 0>;
+			status = "ok";
+
+			phy0: ethernet-phy@0 {
+				reg = <0>;
+			};
+			phy1: ethernet-phy@1 {
+				reg = <1>;
+			};
+			phy2: ethernet-phy@2 {
+				reg = <2>;
+			};
+		};
+
+		ess-switch@3a000000 {
+			switch_cpu_bmp = <0x1>;  /* cpu port bitmap */
+			switch_lan_bmp = <0x3c>; /* lan port bitmap */
+			switch_wan_bmp = <0x02>; /* wan port bitmap */
+			switch_inner_bmp = <0xc0>; /*inner port bitmap*/
+			switch_mac_mode = <0x0>; /* mac mode for uniphy 0*/
+			switch_mac_mode1 = <0xff>; /* mac mode for uniphy 1*/
+			switch_mac_mode2 = <0xff>; /* mac mode for uniphy 2*/
+
+			qcom,port_phyinfo {
+				port@4 {
+					port_id = <1>;
+					phy_address = <0>;
+				};
+				port@0 {
+					port_id = <2>;
+					phy_address = <1>;
+				};
+				port@1 {
+					port_id = <3>;
+					phy_address = <2>;
+				};
+			};
+		};
+
+		dp1 {
+			device_type = "network";
+			compatible = "qcom,nss-dp";
+			qcom,id = <1>;
+			reg = <0x3a001000 0x200>;
+			qcom,mactype = <0>;
+			local-mac-address = [000000000000];
+			qcom,link-poll = <1>;
+			qcom,phy-mdio-addr = <0>;
+			phy-mode = "sgmii";
+		};
+
+		dp2 {
+			device_type = "network";
+			compatible = "qcom,nss-dp";
+			qcom,id = <2>;
+			reg = <0x3a001200 0x200>;
+			qcom,mactype = <0>;
+			local-mac-address = [000000000000];
+			qcom,link-poll = <1>;
+			qcom,phy-mdio-addr = <1>;
+			phy-mode = "sgmii";
+		};
+
+		dp3 {
+			device_type = "network";
+			compatible = "qcom,nss-dp";
+			qcom,id = <3>;
+			reg = <0x3a001400 0x200>;
+			qcom,mactype = <0>;
+			local-mac-address = [000000000000];
+			qcom,link-poll = <1>;
+			qcom,phy-mdio-addr = <2>;
+			phy-mode = "sgmii";
+		};
+	};
+
+	keys {
+		compatible = "gpio-keys";
+		pinctrl-0 = <&button_pins>;
+		pinctrl-names = "default";
+
+		wps {
+			label = "wps";
+			linux,code = <KEY_WPS_BUTTON>;
+			gpios = <&tlmm 9 GPIO_ACTIVE_LOW>;
+			linux,input-type = <1>;
+			debounce-interval = <60>;
+		};
+
+		reset {
+			label = "reset";
+			linux,code = <KEY_RESTART>;
+			gpios = <&tlmm 18 GPIO_ACTIVE_LOW>;
+			linux,input-type = <1>;
+			debounce-interval = <60>;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-0 = <&leds_pins>;
+		pinctrl-names = "default";
+
+		led_blue: status_blue {
+			label = "gl-ax1800:blue:status";
+			gpio = <&tlmm 37 GPIO_ACTIVE_HIGH>;
+		};
+
+		led_white: status_white {
+			label = "gl-ax1800:white:status";
+			gpio = <&tlmm 35 GPIO_ACTIVE_HIGH>;
+		};
+	};
+};
+
+&tlmm {
+	uart_pins: uart_pins {
+		mux {
+			pins = "gpio44", "gpio45";
+			function = "blsp2_uart";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+	};
+
+	tluart_pins: tluart_pins {
+		mux {
+			pins = "gpio75", "gpio76";
+			function = "blsp3_uart";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	hsuart_pins: hsuart_pins {
+		mux {
+			pins = "gpio57", "gpio58";
+			function = "blsp4_uart";
+			drive-strength = <8>;
+			bias-disable;
+		};
+	};
+
+	spi_0_pins: spi_0_pins {
+		mux {
+			pins = "gpio38", "gpio39", "gpio40", "gpio41";
+			function = "blsp0_spi";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+	};
+
+	qpic_pins: qpic_pins {
+		data_0 {
+			pins = "gpio15";
+			function = "qpic_pad0";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+		data_1 {
+			pins = "gpio12";
+			function = "qpic_pad1";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+		data_2 {
+			pins = "gpio13";
+			function = "qpic_pad2";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+		data_3 {
+			pins = "gpio14";
+			function = "qpic_pad3";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+		data_4 {
+			pins = "gpio5";
+			function = "qpic_pad4";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+		data_5 {
+			pins = "gpio6";
+			function = "qpic_pad5";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+		data_6 {
+			pins = "gpio7";
+			function = "qpic_pad6";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+		data_7 {
+			pins = "gpio8";
+			function = "qpic_pad7";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+		qpic_pad {
+			pins = "gpio1", "gpio3", "gpio4",
+			       "gpio10", "gpio11", "gpio17";
+			function = "qpic_pad";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+	};
+
+	button_pins: button_pins {
+		wps_button {
+			pins = "gpio9";
+			function = "gpio";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+
+		reset_button {
+			pins = "gpio18";
+			function = "gpio";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+	};
+
+	mdio_pins: mdio_pinmux {
+		mux_0 {
+			pins = "gpio64";
+			function = "mdc";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+
+		mux_1 {
+			pins = "gpio65";
+			function = "mdio";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+
+		mux_2 {
+			pins = "gpio74";
+			function = "gpio";
+			bias-pull-up;
+		};
+	};
+
+	leds_pins: leds_pins {
+		mux {
+			pins = "gpio35", "gpio37";
+			function = "gpio";
+			drive-strength = <8>;
+			bias-pull-down;
+		};
+	};
+
+	usb_pwr_pins: usb_pwr_pins {
+		mux {
+			pins = "gpio0";
+			function = "gpio";
+			bias-pull-up;
+			output-high;
+		};
+	};
+};
+
+&blsp1_uart3 {
+	pinctrl-0 = <&uart_pins>;
+	pinctrl-names = "default";
+	status = "ok";
+};
+
+&blsp1_uart4 {
+	pinctrl-0 = <&tluart_pins>;
+	pinctrl-names = "default";
+	status = "ok";
+};
+
+&blsp1_uart5 {
+	pinctrl-0 = <&hsuart_pins>;
+	pinctrl-names = "default";
+	status = "ok";
+};
+
+&spi_0 {
+	pinctrl-0 = <&spi_0_pins>;
+	pinctrl-names = "default";
+	cs-select = <0>;
+	status = "ok";
+
+	m25p80@0 {
+		#address-cells = <1>;
+		#size-cells = <1>;
+		reg = <0>;
+		compatible = "n25q128a11";
+		spi-max-frequency = <50000000>;
+		use-default-sizes;
+	};
+};
+
+&nand {
+	pinctrl-0 = <&qpic_pins>;
+	pinctrl-names = "default";
+	status = "ok";
+};
+
+&nss_crypto {
+	status = "ok";
+};
+
+&qpic_bam {
+	status = "ok";
+};
+
+&qusb_phy_0 {
+	status = "ok";
+};
+
+&ssphy_0 {
+	status = "ok";
+};
+
+&rpmsg_rpm {
+	status = "disabled";
+};
+
+&usb3 {
+	pinctrl-0 = <&usb_pwr_pins>;
+	pinctrl-names = "default";
+	status = "ok";
+};

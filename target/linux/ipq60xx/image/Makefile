@@ -43,31 +43,28 @@ define Device/cmiot_ax18
 endef
 TARGET_DEVICES += cmiot_ax18
 
-define Device/glinet_gl-ax1800
+define Device/glinet_gl-common
 	$(call Device/FitImage)
 	$(call Device/UbiFit)
 	BLOCKSIZE := 128k
 	PAGESIZE := 2048
-	DEVICE_DTS := qcom-ipq6018-gl-ax1800
 	DEVICE_DTS_CONFIG := config@cp03-c1
-	DEVICE_TITLE := GL.iNet GL-AX1800
 	DEVICE_PACKAGES := kmod-usb3 kmod-usb-phy-msm
+endef
+
+define Device/glinet_gl-ax1800
+	$(call Device/glinet_gl-common)
+	DEVICE_DTS := qcom-ipq6018-gl-ax1800
+	DEVICE_TITLE := GL.iNet GL-AX1800
 	IMAGES += nand-factory.bin
 	IMAGE/nand-factory.bin := append-ubi | qsdk-ipq-factory-nand
 endef
 TARGET_DEVICES += glinet_gl-ax1800
 
 define Device/glinet_gl-axt1800
-	$(call Device/FitImage)
-	$(call Device/UbiFit)
-	BLOCKSIZE := 128k
-	PAGESIZE := 2048
+	$(call Device/glinet_gl-common)
 	DEVICE_DTS := qcom-ipq6018-gl-axt1800
-	DEVICE_DTS_CONFIG := config@cp03-c1
 	DEVICE_TITLE := GL.iNet GL-AXT1800
-	DEVICE_PACKAGES := kmod-usb3 kmod-usb-phy-msm
-	IMAGES += nand-factory.bin
-	IMAGE/nand-factory.bin := append-ubi | qsdk-ipq-factory-nand
 endef
 TARGET_DEVICES += glinet_gl-axt1800
 
