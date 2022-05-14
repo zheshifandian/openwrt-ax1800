@@ -116,6 +116,17 @@ define Device/qihoo_v6
 endef
 TARGET_DEVICES += qihoo_v6
 
+define Device/xiaomi_rm1800
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_DTS := qcom-ipq6018-rm1800
+	DEVICE_DTS_CONFIG := config@cp03-c1
+	DEVICE_TITLE := Xiaomi RM1800
+endef
+TARGET_DEVICES += xiaomi_rm1800
+
 define Device/zn_m2
 	$(call Device/FitImage)
 	$(call Device/UbiFit)
