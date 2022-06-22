@@ -141,6 +141,36 @@ Subject: [PATCH] kernel: fix build with gcc 7
  				 "b%02d", i);
  			ret = request_firmware(&fw, segment_name, dev_rproc);
  			if (ret) {
+--- a/drivers/scsi/sg.c
++++ b/drivers/scsi/sg.c
+@@ -984,7 +984,6 @@ sg_ioctl(struct file *filp, unsigned int cmd_in, unsigned long arg)
+ 		if (val != sfp->reserve.bufflen) {
+ 			if (sg_res_in_use(sfp) || sfp->mmap_called)
+ 				return -EBUSY;
+-			}
+ 			mutex_lock(&sfp->parentdp->open_rel_lock);
+ 			sg_remove_scat(sfp, &sfp->reserve);
+ 			sg_build_reserve(sfp, val);
+--- a/drivers/scsi/st.c
++++ b/drivers/scsi/st.c
+@@ -4070,7 +4070,7 @@ static int create_one_cdev(struct scsi_tape *tape, int mode, int rew)
+ 	struct cdev *cdev;
+ 	struct device *dev;
+ 	struct st_modedef *STm = &(tape->modes[mode]);
+-	char name[10];
++	char name[33];
+ 	int dev_num = tape->index;
+ 
+ 	cdev_devno = MKDEV(SCSI_TAPE_MAJOR, TAPE_MINOR(dev_num, mode, rew));
+@@ -4094,7 +4094,7 @@ static int create_one_cdev(struct scsi_tape *tape, int mode, int rew)
+ 	}
+ 
+ 	i = mode << (4 - ST_NBR_MODE_BITS);
+-	snprintf(name, 10, "%s%s%s", rew ? "n" : "",
++	snprintf(name, 33, "%s%s%s", rew ? "n" : "",
+ 		 tape->disk->disk_name, st_formats[i]);
+ 
+ 	dev = device_create(&st_sysfs_class, &tape->device->sdev_gendev,
 --- a/drivers/soc/qcom/mdt_loader.c
 +++ b/drivers/soc/qcom/mdt_loader.c
 @@ -347,7 +347,7 @@ static int __qcom_mdt_load(struct device *dev, const struct firmware *fw,
