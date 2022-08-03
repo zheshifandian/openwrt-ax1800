@@ -2420,7 +2420,7 @@ config BUSYBOX_DEFAULT_FEATURE_NETSTAT_PRG
 	default y
 config BUSYBOX_DEFAULT_NSLOOKUP
 	bool
-	default n
+	default y
 config BUSYBOX_DEFAULT_FEATURE_NSLOOKUP_BIG
 	bool
 	default n
@@ -2429,7 +2429,7 @@ config BUSYBOX_DEFAULT_FEATURE_NSLOOKUP_LONG_OPTIONS
 	default n
 config BUSYBOX_DEFAULT_NSLOOKUP_OPENWRT
 	bool
-	default y
+	default n
 config BUSYBOX_DEFAULT_FEATURE_NSLOOKUP_OPENWRT_LONG_OPTIONS
 	bool
 	default n

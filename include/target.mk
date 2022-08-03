@@ -1,10 +1,7 @@
+# SPDX-License-Identifier: GPL-2.0-only
 #
 # Copyright (C) 2007-2008 OpenWrt.org
 # Copyright (C) 2016 LEDE Project
-#
-# This is free software, licensed under the GNU General Public License v2.
-# See /LICENSE for more information.
-#
 
 ifneq ($(__target_inc),1)
 __target_inc=1
@@ -13,12 +10,58 @@ __target_inc=1
 DEVICE_TYPE?=router
 
 # Default packages - the really basic set
-DEFAULT_PACKAGES:=base-files libc libgcc busybox dropbear mtd uci opkg netifd fstools uclient-fetch libustream-openssl logd urandom-seed urngd
+DEFAULT_PACKAGES:=\
+	base-files \
+	ca-bundle \
+	dropbear \
+	fstools \
+	libc \
+	libgcc \
+	libustream-openssl \
+	logd \
+	mtd \
+	netifd \
+	opkg \
+	uci \
+	uclient-fetch \
+	urandom-seed \
+	urngd
+
+ifneq ($(CONFIG_SELINUX),)
+DEFAULT_PACKAGES+=busybox-selinux procd-selinux
+else
+DEFAULT_PACKAGES+=busybox procd
+endif
+
+# For the basic set
+DEFAULT_PACKAGES.basic:=
 # For nas targets
-DEFAULT_PACKAGES.nas:=block-mount fdisk lsblk mdadm
+DEFAULT_PACKAGES.nas:=\
+	block-mount \
+	fdisk \
+	lsblk \
+	mdadm
 # For router targets
-DEFAULT_PACKAGES.router:=dnsmasq-full iptables ip6tables ppp ppp-mod-pppoe firewall odhcpd-ipv6only odhcp6c luci luci-lib-ipkg
-DEFAULT_PACKAGES.bootloader:=
+DEFAULT_PACKAGES.router:=\
+	dnsmasq-full \
+	firewall \
+	iptables \
+	ppp \
+	ppp-mod-pppoe
+# For easy usage
+DEFAULT_PACKAGES.tweak:=\
+	default-settings-chn \
+	kmod-ipt-raw \
+	kmod-nf-nathelper \
+	kmod-nf-nathelper-extra \
+	luci \
+	luci-app-autoreboot \
+	luci-app-cpufreq \
+	luci-app-filetransfer \
+	luci-app-ramfree \
+	luci-app-turboacc \
+	luci-lib-fs \
+	luci-lib-ipkg
 
 ifneq ($(DUMP),)
   all: dumpinfo
@@ -55,11 +98,14 @@ ifneq ($(filter 4.9,$(KERNEL_PATCHVER)),)
   DEFAULT_PACKAGES.router:=$(filter-out kmod-ipt-offload,$(DEFAULT_PACKAGES.router))
 endif
 
+# Add tweaked packages
+DEFAULT_PACKAGES += $(DEFAULT_PACKAGES.tweak)
+
 # Add device specific packages (here below to allow device type set from subtarget)
 DEFAULT_PACKAGES += $(DEFAULT_PACKAGES.$(DEVICE_TYPE))
 
 filter_packages = $(filter-out -% $(patsubst -%,%,$(filter -%,$(1))),$(1))
-extra_packages = $(if $(filter wpad-mini wpad-basic wpad-basic-wolfssl wpad nas,$(1)),iwinfo)
+extra_packages = $(if $(filter wpad wpad-% nas,$(1)),iwinfo)
 
 define ProfileDefault
   NAME:=
@@ -109,17 +155,10 @@ ifneq ($(TARGET_BUILD)$(if $(DUMP),,1),)
 endif
 
 GENERIC_PLATFORM_DIR := $(TOPDIR)/target/linux/generic
-ifeq ($(CONFIG_TARGET_ipq60xx),y)
 GENERIC_BACKPORT_DIR :=
 GENERIC_PATCH_DIR :=
 GENERIC_HACK_DIR :=
 GENERIC_FILES_DIR :=
-else
-GENERIC_BACKPORT_DIR := $(GENERIC_PLATFORM_DIR)/backport$(if $(wildcard $(GENERIC_PLATFORM_DIR)/backport-$(KERNEL_PATCHVER)),-$(KERNEL_PATCHVER))
-GENERIC_PATCH_DIR := $(GENERIC_PLATFORM_DIR)/pending$(if $(wildcard $(GENERIC_PLATFORM_DIR)/pending-$(KERNEL_PATCHVER)),-$(KERNEL_PATCHVER))
-GENERIC_HACK_DIR := $(GENERIC_PLATFORM_DIR)/hack$(if $(wildcard $(GENERIC_PLATFORM_DIR)/hack-$(KERNEL_PATCHVER)),-$(KERNEL_PATCHVER))
-GENERIC_FILES_DIR := $(foreach dir,$(wildcard $(GENERIC_PLATFORM_DIR)/files $(GENERIC_PLATFORM_DIR)/files-$(KERNEL_PATCHVER)),"$(dir)")
-endif
 
 __config_name_list = $(1)/config-$(KERNEL_PATCHVER) $(1)/config-default
 __config_list = $(firstword $(wildcard $(call __config_name_list,$(1))))

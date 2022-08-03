@@ -162,6 +162,28 @@ endef
 $(eval $(call KernelPackage,nf-flow))
 
 
+define KernelPackage/nf-socket
+  SUBMENU:=$(NF_MENU)
+  TITLE:=Netfilter socket lookup support
+  KCONFIG:= $(KCOFNIG_NF_SOCKET)
+  FILES:=$(foreach mod,$(NF_SOCKET-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NF_SOCKET-m)))
+endef
+
+$(eval $(call KernelPackage,nf-socket))
+
+
+define KernelPackage/nf-tproxy
+  SUBMENU:=$(NF_MENU)
+  TITLE:=Netfilter tproxy support
+  KCONFIG:= $(KCOFNIG_NF_TPROXY)
+  FILES:=$(foreach mod,$(NF_TPROXY-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NF_TPROXY-m)))
+endef
+
+$(eval $(call KernelPackage,nf-tproxy))
+
+
 define AddDepends/ipt
   SUBMENU:=$(NF_MENU)
   DEPENDS+= +kmod-ipt-core $(1)
@@ -441,21 +463,25 @@ endef
 $(eval $(call KernelPackage,nf-ipvs-sip))
 
 
-define KernelPackage/ipt-nat
-  TITLE:=Basic NAT targets
-  KCONFIG:=$(KCONFIG_IPT_NAT)
-  FILES:=$(foreach mod,$(IPT_NAT-m),$(LINUX_DIR)/net/$(mod).ko)
-  AUTOLOAD:=$(call AutoProbe,$(notdir $(IPT_NAT-m)))
-  $(call AddDepends/ipt,+kmod-nf-nat)
+define KernelPackage/ipt-imq
+  TITLE:=Intermediate Queueing support
+  KCONFIG:= \
+	CONFIG_IMQ \
+	CONFIG_IMQ_BEHAVIOR_BA=y \
+	CONFIG_IMQ_NUM_DEVS=2 \
+	CONFIG_NETFILTER_XT_TARGET_IMQ
+  FILES:= \
+	$(LINUX_DIR)/drivers/net/imq.$(LINUX_KMOD_SUFFIX) \
+	$(foreach mod,$(IPT_IMQ-m),$(LINUX_DIR)/net/$(mod).$(LINUX_KMOD_SUFFIX))
+  AUTOLOAD:=$(call AutoProbe,$(notdir imq $(IPT_IMQ-m)))
+  $(call AddDepends/ipt)
 endef
 
-define KernelPackage/ipt-nat/description
- Netfilter (IPv4) kernel modules for basic NAT targets
- Includes:
- - MASQUERADE
+define KernelPackage/ipt-imq/description
+ Kernel support for Intermediate Queueing devices
 endef
 
-$(eval $(call KernelPackage,ipt-nat))
+$(eval $(call KernelPackage,ipt-imq))
 
 
 define KernelPackage/ipt-raw
@@ -478,6 +504,23 @@ define KernelPackage/ipt-raw6
 endef
 
 $(eval $(call KernelPackage,ipt-raw6))
+
+
+define KernelPackage/ipt-nat
+  TITLE:=Basic NAT targets
+  KCONFIG:=$(KCONFIG_IPT_NAT)
+  FILES:=$(foreach mod,$(IPT_NAT-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(IPT_NAT-m)))
+  $(call AddDepends/ipt,+kmod-nf-nat)
+endef
+
+define KernelPackage/ipt-nat/description
+ Netfilter (IPv4) kernel modules for basic NAT targets
+ Includes:
+ - MASQUERADE
+endef
+
+$(eval $(call KernelPackage,ipt-nat))
 
 
 define KernelPackage/ipt-nat6
@@ -1148,6 +1191,7 @@ endef
 
 $(eval $(call KernelPackage,nft-nat6))
 
+
 define KernelPackage/nft-netdev
   SUBMENU:=$(NF_MENU)
   TITLE:=Netfilter nf_tables netdev support
@@ -1179,3 +1223,51 @@ define KernelPackage/nft-fib
 endef
 
 $(eval $(call KernelPackage,nft-fib))
+
+
+define KernelPackage/nft-queue
+  SUBMENU:=$(NF_MENU)
+  TITLE:=Netfilter nf_tables queue support
+  DEPENDS:=+kmod-nft-core +kmod-nfnetlink-queue
+  FILES:=$(foreach mod,$(NFT_QUEUE-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFT_QUEUE-m)))
+  KCONFIG:=$(KCONFIG_NFT_QUEUE)
+endef
+
+$(eval $(call KernelPackage,nft-queue))
+
+
+define KernelPackage/nft-socket
+  SUBMENU:=$(NF_MENU)
+  TITLE:=Netfilter nf_tables socket support
+  DEPENDS:=+kmod-nft-core +kmod-nf-socket
+  FILES:=$(foreach mod,$(NFT_SOCKET-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFT_SOCKET-m)))
+  KCONFIG:=$(KCONFIG_NFT_SOCKET)
+endef
+
+$(eval $(call KernelPackage,nft-socket))
+
+
+define KernelPackage/nft-tproxy
+  SUBMENU:=$(NF_MENU)
+  TITLE:=Netfilter nf_tables tproxy support
+  DEPENDS:=+kmod-nft-core +kmod-nf-tproxy +kmod-nf-conntrack
+  FILES:=$(foreach mod,$(NFT_TPROXY-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFT_TPROXY-m)))
+  KCONFIG:=$(KCONFIG_NFT_TPROXY)
+endef
+
+$(eval $(call KernelPackage,nft-tproxy))
+
+
+define KernelPackage/nft-compat
+  SUBMENU:=$(NF_MENU)
+  TITLE:=Netfilter nf_tables compat support
+  DEPENDS:=+kmod-nft-core +kmod-nf-ipt
+  FILES:=$(foreach mod,$(NFT_COMPAT-m),$(LINUX_DIR)/net/$(mod).ko)
+  AUTOLOAD:=$(call AutoProbe,$(notdir $(NFT_COMPAT-m)))
+  KCONFIG:=$(KCONFIG_NFT_COMPAT)
+endef
+
+$(eval $(call KernelPackage,nft-compat))
