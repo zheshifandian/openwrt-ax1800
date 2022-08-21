@@ -1,0 +1,4 @@
+
+config globals
+	option enabled '1'
+

@@ -834,6 +834,7 @@ endef
 
 $(eval $(call KernelPackage,sched-mqprio))
 
+
 define KernelPackage/sched-connmark
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Traffic shaper conntrack mark support
@@ -844,6 +845,7 @@ define KernelPackage/sched-connmark
 endef
 $(eval $(call KernelPackage,sched-connmark))
 
+
 define KernelPackage/sched-ctinfo
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Traffic shaper ctinfo support
@@ -853,6 +855,7 @@ define KernelPackage/sched-ctinfo
   AUTOLOAD:=$(call AutoLoad,71, act_ctinfo)
 endef
 $(eval $(call KernelPackage,sched-ctinfo))
+
 
 define KernelPackage/sched-ipset
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
@@ -997,6 +1000,7 @@ endef
 
 $(eval $(call KernelPackage,pktgen))
 
+
 define KernelPackage/l2tp
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=Layer Two Tunneling Protocol (L2TP)
@@ -1032,6 +1036,7 @@ define KernelPackage/l2tp-eth/description
 endef
 
 $(eval $(call KernelPackage,l2tp-eth))
+
 
 define KernelPackage/l2tp-ip
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
@@ -1093,6 +1098,7 @@ endef
 
 $(eval $(call KernelPackage,netem))
 
+
 define KernelPackage/slip
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   DEPENDS:=+kmod-slhc
@@ -1114,6 +1120,7 @@ endef
 
 $(eval $(call KernelPackage,slip))
 
+
 define KernelPackage/dnsresolver
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=In-kernel DNS Resolver
@@ -1123,6 +1130,7 @@ define KernelPackage/dnsresolver
 endef
 
 $(eval $(call KernelPackage,dnsresolver))
+
 
 define KernelPackage/rxrpc
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
@@ -1145,6 +1153,7 @@ define KernelPackage/rxrpc/description
 endef
 
 $(eval $(call KernelPackage,rxrpc))
+
 
 define KernelPackage/mpls
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
@@ -1169,6 +1178,7 @@ define KernelPackage/mpls/description
 endef
 
 $(eval $(call KernelPackage,mpls))
+
 
 define KernelPackage/9pnet
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
@@ -1223,6 +1233,7 @@ endef
 
 $(eval $(call KernelPackage,mdio))
 
+
 define KernelPackage/macsec
   SUBMENU:=$(NETWORK_SUPPORT_MENU)
   TITLE:=IEEE 802.1AE MAC-level encryption (MAC)
@@ -1237,3 +1248,28 @@ define KernelPackage/macsec/description
 endef
 
 $(eval $(call KernelPackage,macsec))
+
+
+define KernelPackage/inet-diag
+  SUBMENU:=$(NETWORK_SUPPORT_MENU)
+  TITLE:=INET diag support for ss utility
+  KCONFIG:= \
+	CONFIG_INET_DIAG \
+	CONFIG_INET_TCP_DIAG \
+	CONFIG_INET_UDP_DIAG \
+	CONFIG_INET_RAW_DIAG \
+	CONFIG_INET_DIAG_DESTROY=n
+  FILES:= \
+	$(LINUX_DIR)/net/ipv4/inet_diag.ko \
+	$(LINUX_DIR)/net/ipv4/tcp_diag.ko \
+	$(LINUX_DIR)/net/ipv4/udp_diag.ko \
+	$(LINUX_DIR)/net/ipv4/raw_diag.ko@ge4.10
+  AUTOLOAD:=$(call AutoLoad,31,inet_diag tcp_diag udp_diag raw_diag@ge4.10)
+endef
+
+define KernelPackage/inet-diag/description
+  Support for INET (TCP, DCCP, etc) socket monitoring interface used by
+  native Linux tools such as ss.
+endef
+
+$(eval $(call KernelPackage,inet-diag))
