@@ -1,8 +1,0 @@
-dist/
-/host
-*.o
-*.so
-*.swp
-*.po~
-/docs
-modules/luci-base/src/po2lmo
