@@ -1,0 +1,36 @@
+From 90b75db6498a19da96dac4b55c909ff3721f3045 Mon Sep 17 00:00:00 2001
+From: Dave Chinner <dchinner@redhat.com>
+Date: Mon, 26 Sep 2016 09:57:33 +1000
+Subject: [PATCH] fault_in_multipages_readable() throws set-but-unused error
+
+When building XFS with -Werror, it now fails with:
+
+  include/linux/pagemap.h: In function 'fault_in_multipages_readable':
+  include/linux/pagemap.h:602:16: error: variable 'c' set but not used [-Werror=unused-but-set-variable]
+    volatile char c;
+                  ^
+
+This is a regression caused by commit e23d4159b109 ("fix
+fault_in_multipages_...() on architectures with no-op access_ok()").
+Fix it by re-adding the "(void)c" trick taht was previously used to make
+the compiler think the variable is used.
+
+Signed-off-by: Dave Chinner <dchinner@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+---
+ include/linux/pagemap.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/linux/pagemap.h b/include/linux/pagemap.h
+index 7e3d537536122..01e84436cddfe 100644
+--- a/include/linux/pagemap.h
++++ b/include/linux/pagemap.h
+@@ -650,6 +650,7 @@ static inline int fault_in_multipages_readable(const char __user *uaddr,
+ 		return __get_user(c, end);
+ 	}
+ 
++	(void)c;
+ 	return 0;
+ }
+ 
